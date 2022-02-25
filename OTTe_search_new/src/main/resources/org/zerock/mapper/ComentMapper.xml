@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.zerock.mapper.ComentMapper">
+
+	<!-- id 속성은 DAO 의 메소드와 같아야 한다. 여기의 boardVO 는 mybatis-confg.xml 에 Alias 되어 
+		있습니다. -->
+	<select id="selectComentList"
+		resultType="org.zerock.domain.ComentVO">
+		SELECT COMEMNTNUM
+		, COMEMNTTYPENUM
+		, ORIGINNUM
+		, COMEMNTUSER
+		,
+		COMEMNTTEXT
+		, COMEMNTDATE
+		FROM COMMENTTABLE
+		WHERE COMEMNTTYPENUM = 2
+		ORDER BY COMEMNTDATE DESC
+	</select>
+
+	<select id="insertComent"
+		resultType="org.zerock.domain.ComentVO">
+		INSERT INTO COMMENTTABLE VALUES (
+		COMENTSS.NEXTVAL,
+		2,
+		#{originnum},
+		#{comemntuser},
+		#{comemnttext},
+		SYSDATE)
+	</select>
+
+	<insert id="create">
+		INSERT INTO COMMENTTABLE(comemntnum,comemnttypenum,
+		originnum,comemntuser,comemnttext,comemntdate)
+		values
+		(COMENTSS.nextval,2,#{originnum},#{comemntuser},#{comemnttext},SYSDATE)
+	</insert>
+	<update id="update">
+		UPDATE COMMENTTABLE SET COMEMNTTEXT = #{comemnttext}
+		WHERE COMEMNTNUM = #{comemntnum}
+	</update>
+
+	<delete id="delete">
+		DELETE FROM COMMENTTABLE WHERE COMEMNTNUM =#{comemntnum}
+	</delete>
+	
+	<delete id="deleteAll">
+		DELETE FROM COMMENTTABLE WHERE ORIGINNUM =#{originnum}
+	</delete>
+
+	<select id="listPage" resultType="org.zerock.domain.ComentVO">
+ <![CDATA[		
+		SELECT COMEMNTNUM, COMEMNTTYPENUM, ORIGINNUM, COMEMNTUSER, COMEMNTTEXT, COMEMNTDATE FROM
+	 	( SELECT SEQ,COMEMNTNUM, COMEMNTTYPENUM, ORIGINNUM, COMEMNTUSER, COMEMNTTEXT, COMEMNTDATE FROM
+ 		( SELECT ROWNUM AS SEQ, COMEMNTNUM, COMEMNTTYPENUM, ORIGINNUM, COMEMNTUSER, COMEMNTTEXT, COMEMNTDATE FROM
+	    (SELECT * FROM COMMENTTABLE WHERE ORIGINNUM = #{originnum} ORDER BY COMEMNTNUM DESC))
+		WHERE SEQ >= #{cri.pageStart} ) WHERE ROWNUM <= #{cri.perPageNum}
+		 ]]>
+	</select>
+	
+	<select id="count" resultType="int">
+	<![CDATA[ 
+		select count(originnum) from COMMENTTABLE where originnum = #{originnum}
+		 ]]>
+	</select>
+</mapper>

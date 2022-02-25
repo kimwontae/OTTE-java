@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.zerock.mapper.MemberMapper">
+
+	<!-- 회원가입 -->
+
+	<insert id="register">
+		<!-- INSERT INTO USER_T(USERNUM,USERID,USEREMAIL,USERPASSWORD) VALUES(USER_T_S.nextval,'쿠쿠','kuku@naver.com','1111') -->
+
+
+		INSERT INTO USER_T( USERNUM
+		, USERID
+		, USEREMAIL
+		, USERPASSWORD )
+		VALUES(
+		USER_T_S.nextval
+		, #{userid}
+		, #{useremail}
+		, #{userpassword})
+
+	</insert>
+	<!-- INSERT into user_t(useremail, userid, userpassword) VALUES (#{useremail}, 
+		#{userid}, #{userpassword}) -->
+
+
+
+	<!-- 로그인 -->
+	<!-- <select id="login" resultType="kr.co.vo.MemberVO"> SELECT USERID, USERPASS, 
+		USERNAME FROM MP_MEMBER WHERE USERID = #{userId} AND USERPASS = #{userPass} 
+		</select> -->
+
+	<!-- 회원정보 수정 -->
+	<update id="memberUpdate">
+
+		UPDATE USER_T SET userpassword = #{userpassword}
+		WHERE useremail =
+		#{useremail}
+	</update>
+
+
+	<!-- 회원탈퇴 -->
+	<delete id="memberDelete">
+		DELETE FROM USER_T WHERE useremail = #{useremail}
+		<!-- AND userpassword = #{userpassword} -->
+	</delete>
+
+
+	<!-- 패스워드 체크 -->
+	<select id="passChk" resultType="int"> SELECT COUNT(*) FROM
+		USER_T
+		WHERE useremail = #{useremail} AND userpassword = #{userpassword}
+	</select>
+
+	<!-- 회원 이메일,아이디 일치 조회(비밀번호 찾기) -->
+	<select id="memChk" resultType="int"> SELECT COUNT(*) FROM
+		USER_T
+		WHERE
+		useremail = #{useremail} AND userid = #{userid}
+	</select>
+
+
+	<!-- 임시 비밀번호 암호화 -->
+	<update id="randomPw">
+
+		UPDATE USER_T SET userpassword = #{userpassword}
+		WHERE useremail =
+		#{useremail}
+	</update>
+
+
+	<!-- 아이디 중복 체크 -->
+	<select id="idChk" resultType="int"> SELECT COUNT(*)
+		FROM USER_T WHERE
+		userid = #{userid}
+	</select>
+
+	<!-- 이메일 중복 체크 -->
+	<select id="emailChk" resultType="int"> SELECT COUNT(*)
+		FROM USER_T
+		WHERE
+		useremail = #{useremail}
+	</select>
+
+	<!-- 선호도 입력 -->
+	<insert id="insertfavorite">
+
+		INSERT INTO FAVORITE_T(USERNUM, FAVORITESUBJECT,
+		FAVORITEVALUE)
+		VALUES (#{usernum}, #{favoritesubject},
+		#{favoritevalue})
+	</insert>
+
+	<insert id="insertactor">
+
+		INSERT INTO FAVORITE_T(USERNUM, FAVORITESUBJECT,
+		FAVORITEVALUE)
+		VALUES (#{actorid}, #{actorname}, #{actorvalue})
+	</insert>
+
+	<insert id="insertdirector">
+
+		INSERT INTO FAVORITE_T(USERNUM, FAVORITESUBJECT,
+		FAVORITEVALUE)
+		VALUES (#{directorid}, #{directorname},
+		#{directorvalue})
+	</insert>
+	<!-- 프로필에서 내 선호 항목 보여주기 -->
+	<select id="selectfavoritegenre"
+		resultType="org.zerock.domain.FavoriteVO">
+		SELECT * FROM FAVORITE_T
+		WHERE USERNUM = #{usernum} and
+		favoritesubject='genre'
+	</select>
+
+	<select id="selectfavoriteactor"
+		resultType="org.zerock.domain.FavoriteVO">
+		SELECT * FROM FAVORITE_T
+		WHERE USERNUM = #{usernum} and
+		favoritesubject='actor'
+	</select>
+
+	<select id="selectfavoritedirector"
+		resultType="org.zerock.domain.FavoriteVO">
+		SELECT * FROM FAVORITE_T
+		WHERE USERNUM = #{usernum} and
+		favoritesubject='director'
+	</select>
+	<!-- 내 선호항목 삭제하기 -->
+	<delete id="deletemyfavorite">
+		delete from favorite_t where usernum = #{usernum}
+	</delete>
+
+</mapper>

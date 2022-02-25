@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.zerock.mapper.MovieMapper">
+	<insert id="insertMovie">
+		INSERT INTO CONTENTS_T(
+		CONTENTSID,
+		NATIONCODE,
+		OTTID,
+		GRADEID,
+		CLASSID,
+		CONTENTSTITLE,
+		CONTENTSSUMMARY,
+		CONTENTSSTART,
+		CONTENTSSEASON,
+		CONTENTSEPISODE,
+		CONTENTSSCORE,
+		CONTENTSDURATION)
+		VALUES(
+		#{contentsid},
+		#{nationcode},
+		#{ottid},
+		#{gradeid},
+		#{classid},
+		#{contentstitle},
+		#{contentssummary},
+		#{contentsstart},
+		#{contentsseason},
+		#{contentsepisode},
+		#{contentsscore},
+		#{contentsduration})
+	</insert>
+	
+		<insert id="insertActorjoin">
+		INSERT INTO actorjoin
+		VALUES(
+		#{contentsid},
+		999
+		)
+	</insert>
+	<select id="selectMovie" resultType="org.zerock.domain.MovieVO">
+		<![CDATA[SELECT *
+		FROM CONTENTS_T
+		ORDER BY CONTENTSID ASC]]>
+	</select>
+	<delete id="deleteMovie">
+		DELETE FROM CONTENTS_T
+		WHERE CONTENTSID = #{contentsid}
+	</delete>
+	<select id="getPage" resultType="org.zerock.domain.MovieVO">   
+   <![CDATA[ select * from contents_t where contentsid = #{contentsid}]]>
+	</select>
+	<select id="modify">
+		UPDATE CONTENTS_T SET
+		NATIONCODE = #{nationcode},
+		OTTID = #{ottid},
+		GRADEID = #{gradeid},
+		CLASSID = #{classid},
+		CONTENTSTITLE = #{contentstitle},
+		CONTENTSSUMMARY = #{contentssummary},
+		CONTENTSSTART = #{contentsstart},
+		CONTENTSSEASON = #{contentsseason},
+		CONTENTSEPISODE = #{contentsepisode},
+		CONTENTSSCORE = #{contentsscore},
+		CONTENTSDURATION = #{contentsduration}
+		WHERE CONTENTSID = #{contentsid}
+	</select>
+	
+	
+	<insert id="insertMovieImg">
+		INSERT INTO MOVIEFILES(
+		CONTENSTID,
+		MOVIEIMGFILE,
+		INSERTDATE)
+		VALUES(
+		#{contentsid},
+		#{moviefilename},
+		SYSDATE)
+	</insert>
+	
+	<delete id="delete">
+		DELETE FROM CONTENTS_T
+		WHERE CONTENTSID = #{contentsid}
+	</delete>
+	
+	<select id="countBoard" resultType="int">
+		SELECT COUNT(*) FROM contents_t
+	</select>
+	<!-- 페이징 처리 후 게시글 조회 -->
+	<select id="selectBoard" resultType="org.zerock.domain.MovieVO">
+		SELECT *
+		FROM (
+		SELECT ROWNUM RN, A.*
+		FROM (
+		SELECT *
+		FROM contents_t
+		ORDER BY contentsid DESC
+		) A
+		)
+		WHERE RN BETWEEN #{start} AND #{end}
+	</select>
+	<!-- 아이디 중복 체크 -->
+	<select id="idChk" resultType="int"> SELECT COUNT(*)
+		FROM contents_t
+		WHERE
+		contentsid = #{contentsid}
+	</select>
+	<!-- 영상등록 화면에서 영상 제목 검색 -->
+	<select id="selectmoviename"
+		resultType="org.zerock.domain.MovieVO">
+		select contentstitle from contents_t
+	</select>
+</mapper>

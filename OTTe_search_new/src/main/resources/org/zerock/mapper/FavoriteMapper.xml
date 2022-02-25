@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.zerock.mapper.FavoriteMapper">
+
+	<select id="select" resultType="org.zerock.domain.ActorVO">
+		SELECT *
+		FROM actor_t
+	</select>
+	
+	
+	<select id="selectgenre" resultType="org.zerock.domain.GenreVO">
+		SELECT *
+		FROM genre_t
+	</select>
+	
+	<select id="selectdirector" resultType="org.zerock.domain.DirectorVO">
+		SELECT *
+		FROM director_t
+	</select>
+	
+	
+</mapper>
+	

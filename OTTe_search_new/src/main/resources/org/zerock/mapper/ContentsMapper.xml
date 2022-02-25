@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+ 	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+ 	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.zerock.mapper.ContentsMapper">
+
+
+	<!-- id 속성은 DAO 의 메소드와 같아야 한다. 여기의 boardVO 는 mybatis-confg.xml 에 Alias 되어 
+		있습니다. -->
+	<select id="selectTopOrder"
+		resultType="org.zerock.domain.ContentsVO">
+			<![CDATA[select c.contentsid, n.nationname, o.ottname, g.gradename, cl.classname, c.contentstitle, c.contentssummary, c.contentsstart, c.contentsseason, c.contentsepisode, c.contentsscore, c.contentsduration, m.movieimgfile
+					 from contents_t c, ott o, nation_t n, grade_t g, class_t cl, moviefiles m
+					 where c.ottid = o.ottid and n.nationcode=c.nationcode and g.gradeid=c.gradeid and cl.classid=c.classid and c.contentsid =m.contenstid
+					 order by c.CONTENTSSCORE DESC]]>
+
+	</select>
+
+	<select id="selectKoreanOrder"
+		resultType="org.zerock.domain.ContentsVO">
+			<![CDATA[select c.contentsid, n.nationname, o.ottname, g.gradename, cl.classname, c.contentstitle, c.contentssummary, c.contentsstart, c.contentsseason, c.contentsepisode, c.contentsscore, c.contentsduration, m.movieimgfile
+					 from contents_t c, ott o, nation_t n, grade_t g, class_t cl, moviefiles m
+					 where c.NATIONCODE='KR'and c.ottid = o.ottid and n.nationcode=c.nationcode and g.gradeid=c.gradeid and cl.classid=c.classid and c.contentsid =m.contenstid
+					 order by c.contentsid]]>
+
+	</select>
+
+	<select id="selectLatestOrder"
+		resultType="org.zerock.domain.ContentsVO">
+			<![CDATA[select c.contentsid, n.nationname, o.ottname, g.gradename, cl.classname, c.contentstitle, c.contentssummary, c.contentsstart, c.contentsseason, c.contentsepisode, c.contentsscore, c.contentsduration, m.movieimgfile
+					 from contents_t c, ott o, nation_t n, grade_t g, class_t cl, moviefiles m
+					 where c.ottid = o.ottid and n.nationcode=c.nationcode and g.gradeid=c.gradeid and cl.classid=c.classid and c.contentsid =m.contenstid
+					 ORDER BY CONTENTSSTART DESC]]>
+	</select>
+
+	<select id="view" resultType="org.zerock.domain.ContentsVO">
+		<![CDATA[select c.contentsid, n.nationname, o.ottname, g.gradename, cl.classname, c.contentstitle, c.contentssummary, c.contentsstart, c.contentsseason, c.contentsepisode, c.contentsscore, c.contentsduration, m.movieimgfile
+				 from contents_t c, ott o, nation_t n, grade_t g, class_t cl, moviefiles m
+				 where c.ottid = o.ottid and n.nationcode=c.nationcode and g.gradeid=c.gradeid and cl.classid=c.classid and c.contentsid =m.contenstid and CONTENTSID = #{CONTENTSID}
+				 order by c.contentsid]]>
+	</select>
+
+	<select id="selectSearch"
+		resultType="org.zerock.domain.ContentsVO">
+		<![CDATA[SELECT DISTINCT contentsid, nationcode, ottname, gradename, classname, contentstitle, contentssummary, contentsstart, contentsseason, contentsepisode, contentsscore, contentsduration, movieimgfile
+			     FROM(select  c.contentsid, n.nationcode, o.ottname, g.gradename, cl.classname, c.contentstitle, c.contentssummary, c.contentsstart, c.contentsseason, c.contentsepisode, c.contentsscore, c.contentsduration, m.movieimgfile, A.ACTORNAME
+            		  from contents_t c, ott o, nation_t n, grade_t g, class_t cl, ACTORJOIN AJ, ACTOR_T A, moviefiles m
+            		  where c.ottid = o.ottid and n.nationcode=c.nationcode and g.gradeid=c.gradeid and cl.classid=c.classid AND aj.CONTENTSID=C.CONTENTSID AND AJ.ACTORID=A.ACTORID and m.contenstid=c.contentsid)
+			 	 WHERE CONTENTSTITLE LIKE '%'||#{keyword}||'%' OR ACTORNAME LIKE '%'||#{keyword}||'%']]>
+	</select>
+
+	<select id="selectWishlist"
+		resultType="org.zerock.domain.ContentsVO">
+		<![CDATA[select c.contentsid, n.nationname, o.ottname, g.gradename, cl.classname, c.contentstitle, c.contentssummary, c.contentsstart, c.contentsseason, c.contentsepisode, c.contentsscore, c.contentsduration, m.movieimgfile
+				 from contents_t c, ott o, nation_t n, grade_t g, class_t cl, wish w, moviefiles m
+				 where c.ottid = o.ottid and n.nationcode=c.nationcode and g.gradeid=c.gradeid and cl.classid=c.classid and w.contentsid=c.contentsid and c.contentsid =m.contenstid and w.usernum= #{usernum}
+				 order by w.wishdate asc]]>
+	</select>
+
+	<select id="selectViewReply"
+		resultType="org.zerock.domain.ContentsVO">
+		<![CDATA[select R.reviewid, R.contentsid, U.userid, r.reviewnatter, r.reviewscore, r.reviewdate 
+				 from review_t R, user_t U 
+			     where r.contentsid= #{CONTENTSID} and R.usernum=U.usernum]]>
+	</select>
+	
+	<insert id="addReview">
+		<![CDATA[INSERT INTO REVIEW_T(reviewid, usernum, contentsid,reviewnatter,reviewdate) 
+				 VALUES(review_seq.nextval, #{usernum}, #{contentsid}, #{reviewnatter}, SYSDATE)]]>
+	</insert>
+	 
+	 <select id="selectAvgscore"
+		resultType="org.zerock.domain.ContentsVO">
+		<![CDATA[ select * from (select Round(avg(NVL(reviewscore,0)),1)avgscore, round(mod(Round(avg(NVL(reviewscore,0)),1)*10,10), -1) halfstar 
+								 from review_t 
+								 where contentsid=#{CONTENTSID})]]>
+	</select>
+			<select id="selectReviewcnt"
+		resultType="org.zerock.domain.ContentsVO">
+		<![CDATA[select count(*)reviewcnt from review_t where contentsid=#{CONTENTSID}]]>
+	</select>
+	
+	<select id="selectRecommend"
+		resultType="org.zerock.domain.ContentsVO">
+		<![CDATA[select distinct c.contentsid, n.nationname, o.ottname, g.gradename, cl.classname, c.contentstitle, c.contentssummary, c.contentsstart, c.contentsseason, c.contentsepisode, c.contentsscore, c.contentsduration, m.movieimgfile 
+		         from genrejoin gj, contents_t c, genre_t gn, favorite_t f, ott o, nation_t n, grade_t g, class_t cl, moviefiles m, actor_t ac, actorjoin acj
+				 where f.usernum = #{usernum} and c.ottid = o.ottid and n.nationcode=c.nationcode and g.gradeid=c.gradeid and cl.classid=c.classid and c.contentsid =m.contenstid 
+    			       and ac.actorid=acj.actorid and acj.contentsid=c.contentsid
+    				   and  f.favoritevalue=ac.actorname
+				 union
+				 select distinct c.contentsid, n.nationname, o.ottname, g.gradename, cl.classname, c.contentstitle, c.contentssummary, c.contentsstart, c.contentsseason, c.contentsepisode, c.contentsscore, c.contentsduration, m.movieimgfile 
+				 from genrejoin gj, contents_t c, genre_t gn, favorite_t f, ott o, nation_t n, grade_t g, class_t cl, moviefiles m
+				 where f.usernum = #{usernum}  and c.ottid = o.ottid and n.nationcode=c.nationcode and g.gradeid=c.gradeid and cl.classid=c.classid and c.contentsid =m.contenstid 
+  				       and gj.genreid=gn.genreid and gj.contentsid=c.contentsid
+     				   and  f.favoritevalue=gn.genrename
+				 union          
+				 select distinct c.contentsid, n.nationname, o.ottname, g.gradename, cl.classname, c.contentstitle, c.contentssummary, c.contentsstart, c.contentsseason, c.contentsepisode, c.contentsscore, c.contentsduration, m.movieimgfile 
+				 from genrejoin gj, contents_t c, genre_t gn, favorite_t f, ott o, nation_t n, grade_t g, class_t cl, moviefiles m, director_t d, directorjoin dj
+				 where f.usernum = #{usernum} and n.nationcode=c.nationcode and g.gradeid=c.gradeid and cl.classid=c.classid and m.contenstid=c.contentsid and o.ottid=c.ottid
+     				   and dj.directorid=d.directorid and dj.contentsid=c.contentsid
+  				       and  f.favoritevalue=d.directorname]]>
+	</select>
+
+
+	
+</mapper>
